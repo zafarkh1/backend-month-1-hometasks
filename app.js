@@ -92,10 +92,13 @@ console.log(findOdd([1, 2, 2, 3, 3, 3, 4, 3, 3, 3, 2, 2, 1]));
 
 //                               task-5
 
-function DNAStrand (dna) {
-	return dna.replace(/A|T|C|G/g, x => {
-		return (x === 'A') ? 'T' : (x === 'T') ? 'A' (x=== 'C') ? 'G' : 'C'
-	})
+function DNAStrand(dna) {
+  return dna
+    .concat("||TACG")
+    .replace(
+      /A(?=.*?(T))|T(?=.*?(A))|C(?=.*?(G))|G(?=.*?(C))|\|\|....$/gi,
+      "$1$2$3$4"
+    );
 }
 
 
