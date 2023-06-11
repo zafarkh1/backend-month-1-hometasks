@@ -1,67 +1,117 @@
-const http = require("http");
-const data = require("./data");
+import http from "http";
+import data from "./data.js";
 
-http
-  .createServer((request, response) => {
-    const method = request.method;
-    const url = request.url;
-    const football = url.split("/")[1];
-    const country = url.split("/")[2];
-    const clubId = url.split("/")[3];
+const PORT = 9000;
 
-    if (method === "GET") {
-      if (football === "football") {
-        if (!country) {
-          response.end(JSON.stringify(data));
-          return;
-        }
-        if (!clubId) {
-          const countries = data[0][country];
-          if (!countries) {
-            response.writeHead(404, {
-              "Content-type": "application/json",
-            });
-            response.end(
-              JSON.stringify({
-                status: 404,
-                message: "Country not found",
-              })
-            );
-          }
-          response.end(JSON.stringify(countries));
-          return;
-        }
-        const club = data[0][country].find((e) => e.id == clubId);
-        if (!club) {
-          response.writeHead(404, {
-            "Content-type": "application/json",
-          });
-          response.end(
-            JSON.stringify({
-              status: 404,
-              message: "Club not found",
-            })
-          );
-        }
-        response.writeHead(200, {
-          "Content-type": "application/json",
-        });
-        response.end(JSON.stringify(club));
-        return;
-      }
-      response.writeHead(404, {
-        "Content-type": "application/json",
+const server = http.createServer((req, res) => {
+  const method = req.method;
+  const url = req.url;
+  const options = {
+    "Content-Type": "application/json",
+  };
+
+  if (method == "GET") {
+    res.writeHead(200, options);
+    res.end(JSON.stringify(data));
+    return;
+  }
+
+  if (method == "POST") {
+    req.on("data", (chunck) => {
+      const body = JSON.parse(chunck);
+      data.push({
+        id: data.at(-1)?.id + 1 || 1,
+        ...body,
       });
-      response.end(
+      res.writeHead(201, options);
+      res.end(
         JSON.stringify({
-          status: 404,
-          message: "Endpoint not found",
+          message: "Object created",
         })
       );
-    } else {
-      response.end("modification method");
+    });
+    return;
+  }
+
+  if (method == "PATCH") {
+    const productId = url.split("/")[1];
+    if (!productId) {
+      res.writeHead(404, options);
+      res.end(
+        JSON.stringify({
+          message: "Not found",
+        })
+      );
+      return;
     }
-  })
-  .listen(3000, () => {
-    console.log("listening ...");
-  });
+
+    const product = data.find((e) => e.id == productId);
+
+    if (!product) {
+      res.writeHead(404, options);
+      res.end(
+        JSON.stringify({
+          message: "Product not found",
+        })
+      );
+      return;
+    }
+
+    req.on("data", (chunck) => {
+      const { name, price } = JSON.parse(chunck);
+      product.name = name ?? product.name;
+      product.price = price ?? product.price;
+
+      const productIndex = data.findIndex((e) => e.id == productId);
+
+      data.splice(productIndex, 1);
+      data.push(product);
+
+      res.writeHead(201, options);
+      res.end(
+        JSON.stringify({
+          message: "Object updated",
+        })
+      );
+    });
+    return;
+  }
+
+  if (method == "DELETE") {
+    const productId = url.split("/")[1];
+    if (!productId) {
+      res.writeHead(404, options);
+      res.end(
+        JSON.stringify({
+          message: "Not found",
+        })
+      );
+    }
+    const product = data.find((e) => e.id == productId);
+
+    if (!product) {
+      res.writeHead(404, options);
+      res.end(
+        JSON.stringify({
+          message: "Product not found",
+        })
+      );
+    }
+
+    const productIndex = data.findIndex((e) => e.id == productId);
+
+    data.splice(productIndex, 1);
+
+    res.writeHead(204, options);
+    res.end(
+      JSON.stringify({
+        message: "Object deleted",
+      })
+    );
+    return;
+  }
+});
+
+server.listen(PORT, () => {
+  console.log("listening ...");
+});
