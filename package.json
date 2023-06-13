@@ -1,13 +1,14 @@
 {
   "name": "hometask1",
   "version": "1.0.0",
-  "description": "",
-	"type": "module",
+  "type": "module",
   "main": "server.js",
   "scripts": {
-		"start:watch": "node --watch server.js"
+    "start:watch": "node --watch server.js",
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "description": ""
 }
