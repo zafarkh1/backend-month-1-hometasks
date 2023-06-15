@@ -1,0 +1,17 @@
+{
+  "name": "hometask1",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "wait": "nodemon ./src/server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "jsonwebtoken": "^9.0.0",
+    "nodemon": "^2.0.22"
+  }
+}
